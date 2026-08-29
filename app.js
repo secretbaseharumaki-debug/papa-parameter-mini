@@ -5228,14 +5228,18 @@ function loadReportFile(event) {
   if (!file) return;
   const reader = new FileReader();
   reader.addEventListener("load", () => {
-    $("reportText").value = String(reader.result || "");
+    const text =
+      reader.result instanceof ArrayBuffer
+        ? new TextDecoder("utf-8").decode(reader.result)
+        : String(reader.result || "");
+    $("reportText").value = text;
     $("reportStatus").textContent = "読み込み待ち";
     showReportMemory("load", "きろくを よみこみますか？");
   });
   reader.addEventListener("error", () => {
     alert("ファイルを読み込めませんでした。");
   });
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
 }
 
 function restoreReport() {

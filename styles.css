@@ -391,6 +391,30 @@ h2 {
   line-height: 1.55;
 }
 
+.report-file-picker {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed rgba(47, 42, 35, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.72);
+  color: #6f604c;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.report-file-picker input {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid #cfc4b4;
+  border-radius: 8px;
+  background: #fffefb;
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .report-memory-card {
   display: grid;
   grid-template-columns: 112px 1fr;

@@ -8,7 +8,7 @@
       name="description"
       content="3行日記からHP、MP、基礎パラメーター、育児スキル、称号を育てるローカル試作品。"
     />
-    <link rel="stylesheet" href="./styles.css?v=165" />
+    <link rel="stylesheet" href="./styles.css?v=166" />
   </head>
   <body>
     <main class="app-shell">
@@ -248,7 +248,10 @@
           <button class="primary-button" id="exportReportButton" type="button">レポート作成</button>
           <button class="secondary-button" id="loadReportFileButton" type="button">セーブデータから再開</button>
         </div>
-        <input id="reportFileInput" type="file" accept=".papa,.txt,application/json,text/plain" hidden />
+        <label class="report-file-picker" for="reportFileInput">
+          <span>iPhoneで選べない時はここから直接選択</span>
+          <input id="reportFileInput" type="file" accept=".papa,.txt,.json,application/json,text/plain,application/octet-stream" />
+        </label>
         <div class="report-memory-card" id="reportMemoryCard" hidden></div>
         <textarea
           id="reportText"
@@ -293,6 +296,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=165"></script>
+    <script src="./app.js?v=166"></script>
   </body>
 </html>
