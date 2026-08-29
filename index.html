@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png?v=167" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png?v=167" />
     <link rel="manifest" href="./manifest.webmanifest?v=167" />
-    <link rel="stylesheet" href="./styles.css?v=168" />
+    <link rel="stylesheet" href="./styles.css?v=169" />
   </head>
   <body>
     <main class="app-shell">
@@ -89,24 +89,12 @@
           <h2>はじめに設定</h2>
           <span class="count-pill" id="setupStatus">未設定</span>
         </div>
-        <div class="setup-block setup-intro">
-          <h3>あなたの呼び名</h3>
-          <p>普段使っている名前・ニックネームを入力すると、ゲームタイトルがあなた専用になります。</p>
-        </div>
-        <div class="setup-block">
-          <div>
-            <h3>子ども</h3>
-            <p>呼び名、性別、誕生日を入れておくと、日々のログが誰との出来事か拾いやすくなります。</p>
-          </div>
-          <div class="family-list" id="childrenFields"></div>
-          <button class="secondary-button compact" id="addChildButton" type="button">子どもを追加</button>
-        </div>
-
         <div class="setup-grid">
           <div class="setup-block">
-            <h3>自分の呼ばれ方</h3>
+            <h3>自分</h3>
+            <p>普段使っている呼び名を選ぶと、ゲームタイトルがあなた専用になります。</p>
             <div class="field-row">
-              <label for="selfCallSelect">候補</label>
+              <label for="selfCallSelect">呼び名</label>
               <select id="selfCallSelect">
                 <option value="">選択してください</option>
                 <option>パパ</option>
@@ -125,9 +113,10 @@
           </div>
 
           <div class="setup-block">
-            <h3>パートナーの呼び方</h3>
+            <h3>妻・夫</h3>
+            <p>日々のログで出てくる呼び方を入れておくと、夫婦系の判定が拾いやすくなります。</p>
             <div class="field-row">
-              <label for="partnerCallSelect">候補</label>
+              <label for="partnerCallSelect">呼び名</label>
               <select id="partnerCallSelect">
                 <option>ママ</option>
                 <option>お母さん</option>
@@ -142,6 +131,15 @@
               <input id="partnerCallOther" type="text" placeholder="例: かあちゃん" />
             </div>
           </div>
+        </div>
+
+        <div class="setup-block">
+          <div>
+            <h3>子ども</h3>
+            <p>呼び名、性別、誕生日を入れておくと、日々のログが誰との出来事か拾いやすくなります。</p>
+          </div>
+          <div class="family-list" id="childrenFields"></div>
+          <button class="secondary-button compact" id="addChildButton" type="button">子どもを追加</button>
         </div>
 
         <div class="setup-block">
@@ -310,6 +308,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=168"></script>
+    <script src="./app.js?v=169"></script>
   </body>
 </html>
