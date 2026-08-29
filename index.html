@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>パパパラメーター mini</title>
+    <meta
+      name="description"
+      content="3行日記からHP、MP、基礎パラメーター、育児スキル、称号を育てるローカル試作品。"
+    />
+    <link rel="stylesheet" href="./styles.css?v=165" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="top-panel" aria-label="パパパラメーター">
+        <div class="top-main">
+          <div class="top-title-row">
+            <div class="top-title-area">
+              <p class="eyebrow">Papa Parameter mini</p>
+              <h1>パパパラメーター</h1>
+            </div>
+            <div class="top-title-slot">
+              <span>称号</span>
+              <div class="equipped-title-list" id="activeTitle">称号未設定</div>
+              <div class="top-role-mini" aria-label="立ち回り傾向">
+                <span>立ち回り</span>
+                <div class="role-panel" id="rolePanel"></div>
+              </div>
+            </div>
+          </div>
+          <div class="top-player-strip">
+            <div class="level-chip">
+              <span>総合Lv</span>
+              <strong id="levelValue">1</strong>
+            </div>
+            <div class="roll-status" id="rollStatus">
+              <img id="rollImage" src="./assets/roll/roll-hp-100.png" alt="ロールくんのHP状態" />
+            </div>
+          </div>
+        </div>
+        <div class="top-vitals" aria-label="HPとMP">
+          <div class="top-vital hp">
+            <div>
+              <span>HP</span>
+              <strong id="topHpText">10 / 10</strong>
+            </div>
+            <div class="bar-track compact-track" aria-hidden="true">
+              <div class="bar-fill hp-fill" id="topHpBar"></div>
+            </div>
+          </div>
+          <div class="top-vital mp">
+            <div>
+              <span>MP</span>
+              <strong id="topMpText">10 / 10</strong>
+            </div>
+            <div class="bar-track compact-track" aria-hidden="true">
+              <div class="bar-fill mp-fill" id="topMpBar"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="app-nav" aria-label="画面切り替え">
+        <div class="nav-row nav-row-primary">
+          <button type="button" data-view-button="home">育成</button>
+          <button type="button" data-view-button="status">ステータス</button>
+          <button type="button" data-view-button="skills">スキル</button>
+          <button type="button" data-view-button="titles">称号</button>
+          <button type="button" data-view-button="collection">図鑑</button>
+        </div>
+        <div class="nav-row nav-row-secondary">
+          <button type="button" data-view-button="logs">ログ</button>
+          <button type="button" data-view-button="quest">クエスト</button>
+          <button type="button" data-view-button="battle">対戦</button>
+          <button type="button" data-view-button="report">レポート</button>
+          <button type="button" data-view-button="settings">設定</button>
+        </div>
+      </nav>
+
+      <section class="panel setup-panel" data-view="settings" aria-label="初期設定">
+        <div class="panel-title-row">
+          <h2>家族プロフィール</h2>
+          <span class="count-pill" id="setupStatus">未設定</span>
+        </div>
+        <div class="setup-block">
+          <div>
+            <h3>子ども</h3>
+            <p>呼び名、性別、誕生日を入れておくと、日々のログが誰との出来事か拾いやすくなります。</p>
+          </div>
+          <div class="family-list" id="childrenFields"></div>
+          <button class="secondary-button compact" id="addChildButton" type="button">子どもを追加</button>
+        </div>
+
+        <div class="setup-grid">
+          <div class="setup-block">
+            <h3>自分の呼ばれ方</h3>
+            <div class="field-row">
+              <label for="selfCallSelect">候補</label>
+              <select id="selfCallSelect">
+                <option>パパ</option>
+                <option>お父さん</option>
+                <option>父ちゃん</option>
+                <option>とと</option>
+                <option>その他</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="selfCallOther">その他</label>
+              <input id="selfCallOther" type="text" placeholder="例: とうちゃん" />
+            </div>
+          </div>
+
+          <div class="setup-block">
+            <h3>パートナーの呼び方</h3>
+            <div class="field-row">
+              <label for="partnerCallSelect">候補</label>
+              <select id="partnerCallSelect">
+                <option>ママ</option>
+                <option>お母さん</option>
+                <option>母ちゃん</option>
+                <option>かか</option>
+                <option>妻</option>
+                <option>その他</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="partnerCallOther">その他</label>
+              <input id="partnerCallOther" type="text" placeholder="例: かあちゃん" />
+            </div>
+          </div>
+        </div>
+
+        <div class="setup-block">
+          <div>
+            <h3>親族</h3>
+            <p>ばあば、じいじ、甥っ子、姪っ子など。関係は「自分側」か「パートナー側」で選べます。</p>
+          </div>
+          <div class="family-list" id="relativeFields"></div>
+          <button class="secondary-button compact" id="addRelativeButton" type="button">親族を追加</button>
+        </div>
+
+        <div class="action-row">
+          <button class="primary-button" id="saveSetupButton" type="button">育成をはじめる</button>
+          <button class="ghost-button" id="skipSetupButton" type="button">あとで設定</button>
+        </div>
+      </section>
+
+      <section class="entry-panel" data-view="home" aria-label="日記入力">
+        <div class="panel-title-row">
+          <h2>今日のログ</h2>
+          <button class="ghost-button" id="sleepButton" type="button">寝ます</button>
+        </div>
+        <textarea
+          id="entryInput"
+          rows="6"
+          placeholder="例: 保育園帰りに公園で鬼ごっこ。もう一回が止まらず20分走った。帰ってピヨログも忘れずつけた。"
+        ></textarea>
+        <div class="action-row">
+          <button class="primary-button" id="analyzeButton" type="button">育成する</button>
+          <button class="secondary-button" id="pastButton" type="button">過去話でレベリング</button>
+          <button class="secondary-button" id="fusionButton" type="button">スキル合成</button>
+        </div>
+      </section>
+
+      <section class="result-panel" data-view="home" id="resultPanel" aria-live="polite">
+        <p class="empty-result">ログを入れると、今日の育成結果がここに出ます。</p>
+      </section>
+
+      <section class="main-grid">
+        <article class="panel" data-view="status">
+          <div class="panel-title-row">
+            <h2>基礎パラメーター</h2>
+            <button class="reset-button" id="resetButton" type="button">初期化</button>
+          </div>
+          <div class="stat-list" id="statList"></div>
+        </article>
+
+        <article class="panel" data-view="skills">
+          <div class="panel-title-row">
+            <h2>スキル</h2>
+            <div class="panel-actions">
+              <span class="count-pill" id="skillCount">0</span>
+              <button class="secondary-button compact" id="organizeButton" type="button">スキル整理</button>
+            </div>
+          </div>
+          <div class="skill-list" id="skillList"></div>
+        </article>
+
+        <article class="panel" data-view="titles">
+          <div class="panel-title-row">
+            <h2>記念ログ</h2>
+            <span class="count-pill" id="memorialCount">0</span>
+          </div>
+          <div class="skill-list" id="memorialList"></div>
+        </article>
+
+        <article class="panel" data-view="collection">
+          <div class="panel-title-row">
+            <h2>名前図鑑</h2>
+            <span class="count-pill" id="dinosaurCount">0</span>
+          </div>
+          <div class="dinosaur-list" id="dinosaurList"></div>
+        </article>
+
+        <article class="panel" data-view="titles">
+          <div class="panel-title-row">
+            <h2>称号図鑑</h2>
+            <span class="count-pill" id="titleCount">0</span>
+          </div>
+          <input class="title-search" id="titleSearch" type="search" placeholder="称号を検索" />
+          <div class="title-list" id="titleList"></div>
+        </article>
+      </section>
+
+      <section class="panel log-panel" data-view="logs">
+        <div class="panel-title-row">
+          <h2>ログ履歴</h2>
+          <span class="count-pill" id="logCount">0</span>
+        </div>
+        <div class="log-list" id="logList"></div>
+      </section>
+
+      <section class="panel coming-soon-panel" data-view="quest">
+        <div class="panel-title-row">
+          <h2>クエスト</h2>
+          <span class="count-pill">準備中</span>
+        </div>
+        <img class="coming-soon-image" src="./assets/roll/quest-coming-soon.jpeg" alt="クエスト準備中のロールくん" />
+        <p>実装まで待っててね。日々のログから、今週のクエストや到達ミッションを出せるようにする予定です。</p>
+      </section>
+
+      <section class="panel coming-soon-panel" data-view="battle">
+        <div class="panel-title-row">
+          <h2>対戦</h2>
+          <span class="count-pill">準備中</span>
+        </div>
+        <img class="coming-soon-image" src="./assets/roll/battle-coming-soon.jpeg" alt="対戦準備中のロールくん" />
+        <p>実装まで待っててね。育てたスキルや称号で、いつかバトル風に遊べるようにする予定です。</p>
+      </section>
+
+      <section class="panel report-panel" data-view="report">
+        <div class="panel-title-row">
+          <h2>レポート</h2>
+          <span class="count-pill" id="reportStatus">セーブ用</span>
+        </div>
+        <p>今の育成データをファイルに残せます。データが消えた時は、保存したセーブデータから再開できます。</p>
+        <div class="action-row">
+          <button class="primary-button" id="exportReportButton" type="button">レポート作成</button>
+          <button class="secondary-button" id="loadReportFileButton" type="button">セーブデータから再開</button>
+        </div>
+        <input id="reportFileInput" type="file" accept=".papa,.txt,application/json,text/plain" hidden />
+        <div class="report-memory-card" id="reportMemoryCard" hidden></div>
+        <textarea
+          id="reportText"
+          rows="10"
+          hidden
+          placeholder="レポート作成を押すと、ここにセーブ用レポートが出ます。復元するときは、ここにレポートを貼ってください。"
+        ></textarea>
+      </section>
+    </main>
+
+    <dialog id="detailDialog">
+      <div class="dialog-card">
+        <button class="dialog-close" id="closeDialog" type="button" aria-label="閉じる">×</button>
+        <div id="dialogBody"></div>
+      </div>
+    </dialog>
+
+    <dialog id="growthDialog">
+      <div class="dialog-card growth-dialog-card">
+        <button class="dialog-close" id="growthCloseButton" type="button" aria-label="閉じる">×</button>
+        <div id="growthDialogBody"></div>
+        <div class="growth-dialog-actions">
+          <span id="growthStepText">1/1</span>
+          <button class="primary-button" id="growthNextButton" type="button">次へ</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="sleep-curtain" id="sleepCurtain" aria-hidden="true">
+      <div class="curtain-panel curtain-left"></div>
+      <div class="curtain-panel curtain-right"></div>
+      <div class="sleep-curtain-message">
+        <span>おやすみなさい</span>
+        <strong>HP / MP 回復中...</strong>
+      </div>
+    </div>
+
+    <div class="load-wipe" id="loadWipe" aria-hidden="true">
+      <div class="load-wipe-card">
+        <img src="./assets/roll/report-load-room.png" alt="" />
+        <strong>きろくから再開中...</strong>
+      </div>
+    </div>
+
+    <script src="./app.js?v=165"></script>
+  </body>
+</html>
