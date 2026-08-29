@@ -669,7 +669,7 @@ const initialState = {
   setupComplete: false,
   familyProfile: {
     children: [{ nickname: "", gender: "", birthday: "", relation: "長女" }],
-    selfCall: "パパ",
+    selfCall: "",
     partnerCall: "ママ",
     relatives: [],
   },
@@ -7005,6 +7005,7 @@ function shuffle(items) {
 
 function render() {
   renderActiveView();
+  renderAppTitle();
   $("levelValue").textContent = state.level;
   renderSetupForm();
   const equippedTitles = currentSelectedTitles();
@@ -7077,6 +7078,17 @@ function render() {
   document.querySelectorAll("[data-remove-relative]").forEach((button) => {
     button.addEventListener("click", () => removeFamilyRow("relatives", Number(button.dataset.removeRelative)));
   });
+}
+
+function appParameterTitle() {
+  const selfCall = String(state.familyProfile?.selfCall || "").trim();
+  return selfCall ? `${selfCall}パラメーター` : "パパパラメーター";
+}
+
+function renderAppTitle() {
+  const title = appParameterTitle();
+  if ($("appTitle")) $("appTitle").textContent = title;
+  document.title = `${title} mini`;
 }
 
 function renderRollStatus() {
@@ -7262,7 +7274,7 @@ function setCallSelect(selectId, otherId, value) {
 function selectedCall(selectId, otherId) {
   const selected = $(selectId).value;
   const other = $(otherId).value.trim();
-  return selected === "その他" ? other || "その他" : selected;
+  return selected === "その他" ? other : selected;
 }
 
 function collectFamilyForm() {
@@ -7323,6 +7335,10 @@ function removeFamilyRow(type, index) {
 
 function saveSetup(complete = true) {
   state.familyProfile = normalizeFamilyProfile(collectFamilyForm());
+  if (complete && !state.familyProfile.selfCall) {
+    alert("あなたの呼び名を入力してください。あとで設定する場合は「あとで設定」を押してください。");
+    return;
+  }
   state.setupComplete = complete;
   state.currentView = complete ? "home" : state.currentView;
   saveState();

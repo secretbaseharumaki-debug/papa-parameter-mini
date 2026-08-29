@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png?v=167" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png?v=167" />
     <link rel="manifest" href="./manifest.webmanifest?v=167" />
-    <link rel="stylesheet" href="./styles.css?v=167" />
+    <link rel="stylesheet" href="./styles.css?v=168" />
   </head>
   <body>
     <main class="app-shell">
@@ -24,7 +24,7 @@
           <div class="top-title-row">
             <div class="top-title-area">
               <p class="eyebrow">Papa Parameter mini</p>
-              <h1>パパパラメーター</h1>
+              <h1 id="appTitle">パパパラメーター</h1>
             </div>
             <div class="top-title-slot">
               <span>称号</span>
@@ -86,8 +86,12 @@
 
       <section class="panel setup-panel" data-view="settings" aria-label="初期設定">
         <div class="panel-title-row">
-          <h2>家族プロフィール</h2>
+          <h2>はじめに設定</h2>
           <span class="count-pill" id="setupStatus">未設定</span>
+        </div>
+        <div class="setup-block setup-intro">
+          <h3>あなたの呼び名</h3>
+          <p>普段使っている名前・ニックネームを入力すると、ゲームタイトルがあなた専用になります。</p>
         </div>
         <div class="setup-block">
           <div>
@@ -104,16 +108,19 @@
             <div class="field-row">
               <label for="selfCallSelect">候補</label>
               <select id="selfCallSelect">
+                <option value="">選択してください</option>
                 <option>パパ</option>
                 <option>お父さん</option>
                 <option>父ちゃん</option>
                 <option>とと</option>
+                <option>ママ</option>
+                <option>お母さん</option>
                 <option>その他</option>
               </select>
             </div>
             <div class="field-row">
-              <label for="selfCallOther">その他</label>
-              <input id="selfCallOther" type="text" placeholder="例: とうちゃん" />
+              <label for="selfCallOther">名前・その他</label>
+              <input id="selfCallOther" type="text" placeholder="例: はるまき大臣" />
             </div>
           </div>
 
@@ -303,6 +310,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=167"></script>
+    <script src="./app.js?v=168"></script>
   </body>
 </html>
