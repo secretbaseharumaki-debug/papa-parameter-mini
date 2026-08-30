@@ -7124,6 +7124,9 @@ function rollStatus() {
       src: "./assets/roll/roll-birthday.png",
     };
   }
+  const hpPercent = state.maxHp ? (state.hp / state.maxHp) * 100 : 0;
+  if (hpPercent > 100 || state.hp <= 0 || hpPercent <= 25) return rollStatusFromHp();
+
   const mpPercent = state.maxMp ? (state.mp / state.maxMp) * 100 : 0;
   if (mpPercent > 100) {
     return {
