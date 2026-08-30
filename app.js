@@ -5100,11 +5100,26 @@ const memorialSeeds = [
   },
 ];
 
+function normalizeTitles(titles = []) {
+  return Array.from(new Set(titles)).filter((title) => title && !isDisposableCollectionTitle(title));
+}
+
+function isDisposableCollectionTitle(title) {
+  if (!title) return false;
+  if (title.endsWith("図鑑の入口に立った親")) return true;
+  const discovered = title.match(/^(.+)を発見した親$/);
+  if (!discovered) return false;
+  const name = discovered[1];
+  return NAME_COLLECTIONS.some((collection) => collection.items.some((item) => item.name === name));
+}
+
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved) return structuredClone(initialState);
-    const migratedSelectedTitles = saved.selectedTitles || (saved.selectedTitle ? [saved.selectedTitle] : []);
+    const cleanTitles = normalizeTitles(saved.titles || []);
+    const migratedSelectedTitles = normalizeTitles(saved.selectedTitles || (saved.selectedTitle ? [saved.selectedTitle] : []));
+    const titleSourceEntries = Object.entries(saved.titleSources || {}).filter(([title]) => cleanTitles.includes(title));
     const collectionSkillNames = new Set(NAME_COLLECTIONS.map((collection) => collection.skillName));
     return {
       ...structuredClone(initialState),
@@ -5118,10 +5133,10 @@ function loadState() {
       nameCollections: saved.nameCollections || { dinosaurs: saved.dinosaurs || {} },
       expandedNameCollections: saved.expandedNameCollections || [],
       dinosaurs: saved.dinosaurs || {},
-      titles: saved.titles || [],
-      selectedTitle: saved.selectedTitle || (saved.titles && saved.titles[0]) || "",
+      titles: cleanTitles,
+      selectedTitle: migratedSelectedTitles[0] || cleanTitles[0] || "",
       selectedTitles: migratedSelectedTitles.slice(0, TITLE_EQUIP_LIMIT),
-      titleSources: saved.titleSources || {},
+      titleSources: Object.fromEntries(titleSourceEntries),
       roles: { ...initialState.roles, ...(saved.roles || {}) },
       specialRoll: saved.specialRoll || null,
       setupComplete: saved.setupComplete || false,
@@ -5156,6 +5171,10 @@ function normalizeFamilyProfile(profile = {}) {
 }
 
 function saveState() {
+  state.titles = normalizeTitles(state.titles || []);
+  state.selectedTitles = normalizeTitles(state.selectedTitles || []).slice(0, TITLE_EQUIP_LIMIT);
+  state.selectedTitle = state.selectedTitles[0] || "";
+  state.titleSources = Object.fromEntries(Object.entries(state.titleSources || {}).filter(([title]) => state.titles.includes(title)));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
@@ -5770,6 +5789,7 @@ function skillCategoryName(skill) {
 }
 
 function titleCategoryName(title) {
+  if (isCollectionProgressTitle(title)) return "図鑑";
   const sourceText = titleSourceLogs(title)
     .map((log) => `${log.title || ""} ${log.text || ""}`)
     .join(" ");
@@ -5786,7 +5806,18 @@ function categoryNameFromText(text) {
   return category ? category.name : "毎日の積み重ね";
 }
 
+function collectionProgressTitleSet() {
+  return new Set(
+    NAME_COLLECTIONS.flatMap((collection) => collectionTitlesForCount(collection, 0, collection.items.length))
+  );
+}
+
+function isCollectionProgressTitle(title) {
+  return collectionProgressTitleSet().has(title) || /図鑑(中級者|コンプリート|を埋める親|集めの相棒|博士|見習い)/.test(title);
+}
+
 function addTitle(title, sourceLogId = null) {
+  if (isDisposableCollectionTitle(title)) return;
   if (!state.titles.includes(title)) state.titles.unshift(title);
   if (!state.selectedTitle) state.selectedTitle = title;
   if (!state.selectedTitles.length) state.selectedTitles = [title];
@@ -6288,6 +6319,7 @@ function discoverNameCollections(text, logId, isPastLeveling) {
         count: current.count + 1,
         firstLogId: current.firstLogId || logId,
         lastLogId: logId,
+        logIds: Array.from(new Set([...(current.logIds || []), current.firstLogId, logId].filter(Boolean))),
         updatedAt: new Date().toISOString(),
       };
     });
@@ -6295,8 +6327,6 @@ function discoverNameCollections(text, logId, isPastLeveling) {
 
     const afterCount = discoveredNameCount(collection.id);
     collectionTitlesForCount(collection, beforeCount, afterCount).forEach((title) => addTitle(title, logId));
-    if (newlyFound.length) addTitle(`${newlyFound[0]}を発見した親`, logId);
-    if (hasTheme && afterCount === 0) addTitle(`${collection.shortLabel}図鑑の入口に立った親`, logId);
 
     if (foundItems.length) {
       foundGroups.push({
@@ -7174,6 +7204,9 @@ function shuffle(items) {
 }
 
 function render() {
+  state.titles = normalizeTitles(state.titles || []);
+  state.selectedTitles = normalizeTitles(state.selectedTitles || []).slice(0, TITLE_EQUIP_LIMIT);
+  state.selectedTitle = state.selectedTitles[0] || "";
   renderActiveView();
   renderAppTitle();
   $("levelValue").textContent = state.level;
@@ -7207,7 +7240,8 @@ function render() {
   $("skillCount").textContent = `装備 ${equippedTotal} / 所持 ${normalSkills.length}`;
   $("memorialCount").textContent = memorialSkills.length;
   $("dinosaurCount").textContent = `${discoveredNameTotal()}/${nameCollectionTotal()}`;
-  $("titleCount").textContent = state.titles.length;
+  const visibleTitles = normalizeTitles(state.titles);
+  $("titleCount").textContent = visibleTitles.length;
   $("logCount").textContent = state.logs.length;
   if ($("reportStatus") && !$("reportText").value.trim()) $("reportStatus").textContent = `Lv.${state.level} / ログ${state.logs.length}`;
   if ($("roleTotal")) $("roleTotal").textContent = (state.roles.leader || 0) + (state.roles.supporter || 0);
@@ -7219,8 +7253,8 @@ function render() {
     ? memorialSkills.map(renderMemorialCard).join("")
     : `<p class="small-empty">記念ログはまだ眠っています。</p>`;
   $("dinosaurList").innerHTML = renderNameCollections();
-  $("titleList").innerHTML = state.titles.length
-    ? renderTitleGroups(state.titles)
+  $("titleList").innerHTML = visibleTitles.length
+    ? renderTitleGroups(visibleTitles)
     : `<p class="small-empty">まだ称号はありません。</p>`;
   $("logList").innerHTML = state.logs.length ? state.logs.slice(0, 20).map(renderLogCard).join("") : `<p class="small-empty">ログはまだありません。</p>`;
 
@@ -7235,6 +7269,9 @@ function render() {
   });
   document.querySelectorAll("[data-toggle-name-collection]").forEach((button) => {
     button.addEventListener("click", () => toggleNameCollection(button.dataset.toggleNameCollection));
+  });
+  document.querySelectorAll("[data-name-log-collection]").forEach((button) => {
+    button.addEventListener("click", () => showNameCollectionLogs(button.dataset.nameLogCollection, button.dataset.nameLogItem));
   });
   document.querySelectorAll("[data-title-index]").forEach((button) => {
     button.addEventListener("click", () => selectTitle(Number(button.dataset.titleIndex)));
@@ -7868,10 +7905,10 @@ function renderNameCollections() {
                     const entry = collectionState(collection.id)[item.name];
                     const found = (entry?.count || 0) > 0;
                     return `
-                      <div class="dinosaur-card ${found ? "found" : ""}">
+                      <button class="dinosaur-card ${found ? "found" : ""}" type="button" ${found ? `data-name-log-collection="${collection.id}" data-name-log-item="${encodeURIComponent(item.name)}"` : "disabled"}>
                         <strong>${found ? escapeHtml(item.name) : escapeHtml(unrevealedNameHint(item))}</strong>
                         <small>${found ? `${entry.count}回 / 発見済み` : "未発見"}</small>
-                      </div>
+                      </button>
                     `;
                   })
                   .join("")}
@@ -7886,15 +7923,17 @@ function renderNameCollections() {
 
 function renderTitleGroups(titles) {
   const query = $("titleSearch") ? $("titleSearch").value.trim() : "";
+  const visibleTitles = normalizeTitles(titles);
   const filteredTitles = query
-    ? titles.filter((title) => {
+    ? visibleTitles.filter((title) => {
         const logs = titleSourceLogs(title).map((log) => `${log.title || ""} ${log.text || ""}`).join(" ");
         return `${title} ${logs}`.includes(query);
       })
-    : titles;
+    : visibleTitles;
   if (!filteredTitles.length) return `<p class="small-empty">見つかりませんでした。</p>`;
 
-  const grouped = new Map(orderedSkillCategoryNames().map((name) => [name, []]));
+  const groupOrder = [...orderedSkillCategoryNames(), "図鑑"];
+  const grouped = new Map(groupOrder.map((name) => [name, []]));
   filteredTitles.forEach((title) => {
     const categoryName = titleCategoryName(title);
     if (!grouped.has(categoryName)) grouped.set(categoryName, []);
@@ -7904,7 +7943,7 @@ function renderTitleGroups(titles) {
   return Array.from(grouped.entries())
     .filter(([, items]) => items.length)
     .map(([categoryName, items]) => `
-      <section class="title-group">
+      <section class="title-group ${categoryName === "図鑑" ? "collection-title-group" : ""}">
         <div class="title-group-head">
           <h3>${escapeHtml(categoryName)}</h3>
           <span>${items.length}</span>
@@ -7922,13 +7961,12 @@ function renderTitleCard(title, index) {
   const sourceCount = titleSourceLogs(title).length;
   return `
     <article class="title-card ${isActive ? "active" : ""}">
-      <div>
+      <button class="title-card-main" type="button" data-title-log-index="${index}">
         <span>${escapeHtml(title)}</span>
-        <small>${isActive ? "装備中" : "未装備"}${sourceCount ? ` / ${sourceCount}ログ` : ""}</small>
-      </div>
+        <small>${sourceCount ? `${sourceCount}ログ` : "0ログ"}${isActive ? " / 装備中" : ""}</small>
+      </button>
       <div class="title-card-actions">
         <button class="title-equip-button" type="button" data-title-index="${index}">${isActive ? "外す" : "つける"}</button>
-        <button class="title-log-button" type="button" data-title-log-index="${index}">ログ</button>
       </div>
     </article>
   `;
@@ -7999,6 +8037,43 @@ function showTitleLogs(index) {
     }
   `;
   $("detailDialog").showModal();
+}
+
+function showNameCollectionLogs(collectionId, encodedName) {
+  const collection = NAME_COLLECTIONS.find((item) => item.id === collectionId);
+  const name = decodeURIComponent(encodedName || "");
+  const item = collection?.items.find((candidate) => candidate.name === name);
+  if (!collection || !item) return;
+  const entry = collectionState(collection.id)[item.name] || {};
+  const sourceLogs = nameCollectionItemLogs(collection, item);
+  $("dialogBody").innerHTML = `
+    <h3>${escapeHtml(item.name)}</h3>
+    <p class="skill-meta">${escapeHtml(collection.label)} / ${entry.count || sourceLogs.length}回発見 / ${sourceLogs.length}ログ</p>
+    ${
+      sourceLogs.length
+        ? sourceLogs
+            .map(
+              (log) => `
+                <p>${escapeHtml(log.text)}</p>
+                <p class="skill-meta">${formatDate(log.createdAt)} / ${escapeHtml(log.title || "")}</p>
+              `
+            )
+            .join("")
+        : "<p>この名前の元ログはまだありません。</p>"
+    }
+  `;
+  $("detailDialog").showModal();
+}
+
+function nameCollectionItemLogs(collection, item) {
+  const entry = collectionState(collection.id)[item.name] || {};
+  const explicitIds = entry.logIds || [entry.firstLogId, entry.lastLogId].filter(Boolean);
+  const explicitLogs = explicitIds.map((id) => state.logs.find((log) => log.id === id)).filter(Boolean);
+  const matchedLogs = state.logs.filter((log) => {
+    const matchedByCollection = (log.nameCollections || []).some((group) => group.id === collection.id && (group.names || []).includes(item.name));
+    return matchedByCollection || includesAny(log.text || "", item.words || []);
+  });
+  return Array.from(new Map([...explicitLogs, ...matchedLogs].map((log) => [log.id, log])).values());
 }
 
 function titleSourceLogs(title) {

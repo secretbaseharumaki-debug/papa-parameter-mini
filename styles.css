@@ -1230,6 +1230,18 @@ textarea:focus {
   background: #fff6d9;
 }
 
+.title-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-height: 38px;
+  padding: 4px;
+  border-color: #d8cdbc;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+}
+
 .skill-card.unique {
   border-color: transparent;
   background:
@@ -1406,8 +1418,14 @@ textarea:focus {
 }
 
 .title-group-list {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.collection-title-group {
+  border-color: #d7d7e8;
+  background: rgba(246, 247, 255, 0.72);
 }
 
 .collection-summary {
@@ -1490,6 +1508,8 @@ textarea:focus {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.58);
   color: var(--muted);
+  text-align: left;
+  font: inherit;
 }
 
 .dinosaur-card.found {
@@ -1497,6 +1517,11 @@ textarea:focus {
   border-color: #2f8fb0;
   background: linear-gradient(135deg, #eef8fb, #fffaf1);
   color: var(--ink);
+  cursor: pointer;
+}
+
+.dinosaur-card:disabled {
+  cursor: default;
 }
 
 .dinosaur-card strong {
@@ -1522,15 +1547,27 @@ textarea:focus {
   font-size: 0.9rem;
 }
 
+.title-card-main {
+  display: grid;
+  gap: 1px;
+  min-height: 30px;
+  padding: 3px 7px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+}
+
 .title-card span {
   display: block;
   font-weight: 900;
   overflow-wrap: anywhere;
+  font-size: 0.86rem;
 }
 
 .title-card small {
   display: block;
-  margin-top: 4px;
   color: var(--muted);
   font-size: 0.76rem;
   font-weight: 850;
@@ -1538,7 +1575,7 @@ textarea:focus {
 
 .title-card.active {
   border-color: #d6a83b;
-  background: linear-gradient(180deg, #fff, #fff1c6);
+  background: #fff6d9;
 }
 
 .title-card.active small {
@@ -1548,12 +1585,10 @@ textarea:focus {
 .title-card-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   flex-shrink: 0;
 }
 
-.title-equip-button,
-.title-log-button {
+.title-equip-button {
   min-height: 28px;
   padding: 0 8px;
   border: 1px solid #2f2a23;
@@ -1562,12 +1597,6 @@ textarea:focus {
   color: #fff4cf;
   font-size: 0.76rem;
   font-weight: 900;
-}
-
-.title-log-button {
-  border-color: #d8cdbc;
-  background: #fffefb;
-  color: var(--ink);
 }
 
 .log-panel {
