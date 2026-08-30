@@ -3,6 +3,8 @@ const STORAGE_KEY = "papa-parameter-mini-state-v1";
 const BASE_STATS = ["筋力", "知力", "実行力", "素直さ", "察知力", "忍耐力"];
 const NORMAL_SKILL_LIMIT = 4;
 const TITLE_EQUIP_LIMIT = 3;
+const SELF_CALL_OPTIONS = ["", "パパ", "お父さん", "父ちゃん", "とと", "ママ", "お母さん", "その他"];
+const PARTNER_CALL_OPTIONS = ["ママ", "お母さん", "母ちゃん", "かか", "妻", "パパ", "お父さん", "夫", "その他"];
 const STAT_RANKS = [
   { name: "見習い", min: 1, color: "#d29a18" },
   { name: "初級", min: 10, color: "#7fb35b" },
@@ -669,8 +671,11 @@ const initialState = {
   setupComplete: false,
   familyProfile: {
     children: [{ nickname: "", gender: "", birthday: "", relation: "長女" }],
+    selfName: "",
     selfCall: "",
+    selfCallExtra: "",
     partnerCall: "ママ",
+    partnerCallExtra: "",
     relatives: [],
   },
   logs: [],
@@ -5154,6 +5159,9 @@ function loadState() {
 function normalizeFamilyProfile(profile = {}) {
   const base = structuredClone(initialState.familyProfile);
   const children = (profile.children || base.children).length ? profile.children || base.children : base.children;
+  const oldSelfCall = profile.selfCall || "";
+  const oldSelfCallWasCustom = oldSelfCall && !SELF_CALL_OPTIONS.includes(oldSelfCall);
+  const oldPartnerCall = profile.partnerCall === "その他" ? "" : profile.partnerCall || "";
   return {
     children: children.map((child) => ({
       nickname: child.nickname || "",
@@ -5161,8 +5169,11 @@ function normalizeFamilyProfile(profile = {}) {
       birthday: child.birthday || "",
       relation: child.relation || "",
     })),
-    selfCall: profile.selfCall || base.selfCall,
-    partnerCall: profile.partnerCall || base.partnerCall,
+    selfName: String(profile.selfName || (oldSelfCallWasCustom ? oldSelfCall : "") || base.selfName).slice(0, 10),
+    selfCall: oldSelfCallWasCustom ? base.selfCall : oldSelfCall || base.selfCall,
+    selfCallExtra: String(profile.selfCallExtra || "").slice(0, 10),
+    partnerCall: oldPartnerCall || base.partnerCall,
+    partnerCallExtra: String(profile.partnerCallExtra || "").slice(0, 10),
     relatives: (profile.relatives || []).map((relative) => ({
       nickname: relative.nickname || "",
       relation: relative.relation || "",
@@ -5228,9 +5239,11 @@ function createSaveReport() {
 
 function reportPlayerName() {
   const title = currentSelectedTitles()[0] || state.selectedTitle || "";
+  const selfName = state.familyProfile?.selfName || "";
   const selfCall = state.familyProfile?.selfCall || "";
   const child = (state.familyProfile?.children || []).find((item) => item.nickname)?.nickname || "";
   if (title) return title;
+  if (selfName) return selfName;
   if (child && selfCall) return `${child}の${selfCall}`;
   if (selfCall) return selfCall;
   return "プレイヤー";
@@ -6733,8 +6746,11 @@ function parentCallWords() {
   const profile = state.familyProfile || {};
   return Array.from(
     new Set([
+      profile.selfName,
       profile.selfCall,
+      profile.selfCallExtra,
       profile.partnerCall,
+      profile.partnerCallExtra,
       "パパ",
       "ぱぱ",
       "ママ",
@@ -7288,8 +7304,10 @@ function render() {
 }
 
 function appParameterTitle() {
+  const selfName = String(state.familyProfile?.selfName || "").trim();
   const selfCall = String(state.familyProfile?.selfCall || "").trim();
-  return selfCall ? `${selfCall}パラメーター` : "パパパラメーター";
+  const name = selfName || selfCall;
+  return name ? `${name}パラメーター` : "パパパラメーター";
 }
 
 function renderAppTitle() {
@@ -7396,8 +7414,9 @@ function renderSetupForm() {
   $("relativeFields").innerHTML = profile.relatives.length
     ? profile.relatives.map(renderRelativeFields).join("")
     : `<p class="small-empty">親族はまだ登録されていません。</p>`;
-  setCallSelect("selfCallSelect", "selfCallOther", profile.selfCall);
-  setCallSelect("partnerCallSelect", "partnerCallOther", profile.partnerCall);
+  $("selfNameInput").value = profile.selfName || "";
+  setCallSelect("selfCallSelect", "selfCallOther", profile.selfCall, profile.selfCallExtra);
+  setCallSelect("partnerCallSelect", "partnerCallOther", profile.partnerCall, profile.partnerCallExtra);
 }
 
 function renderChildFields(child, index) {
@@ -7467,14 +7486,14 @@ function renderRelativeFields(relative, index) {
   `;
 }
 
-function setCallSelect(selectId, otherId, value) {
+function setCallSelect(selectId, otherId, value, extraValue = "") {
   const select = $(selectId);
   const other = $(otherId);
   if (!select || !other) return;
   const options = Array.from(select.options).map((option) => option.value);
   if (options.includes(value)) {
     select.value = value;
-    other.value = "";
+    other.value = extraValue || "";
   } else {
     select.value = "その他";
     other.value = value || "";
@@ -7485,6 +7504,12 @@ function selectedCall(selectId, otherId) {
   const selected = $(selectId).value;
   const other = $(otherId).value.trim();
   return selected === "その他" ? other : selected;
+}
+
+function extraCall(selectId, otherId) {
+  const selected = $(selectId).value;
+  const other = $(otherId).value.trim();
+  return selected === "その他" ? "" : other;
 }
 
 function collectFamilyForm() {
@@ -7519,8 +7544,11 @@ function collectFamilyForm() {
   });
   return {
     children: (children.length ? children : state.familyProfile.children).filter(Boolean),
+    selfName: $("selfNameInput").value.trim().slice(0, 10),
     selfCall: selectedCall("selfCallSelect", "selfCallOther"),
+    selfCallExtra: extraCall("selfCallSelect", "selfCallOther"),
     partnerCall: selectedCall("partnerCallSelect", "partnerCallOther"),
+    partnerCallExtra: extraCall("partnerCallSelect", "partnerCallOther"),
     relatives: relatives.filter((relative) => relative && (relative.nickname || relative.relation)),
   };
 }
@@ -7545,8 +7573,8 @@ function removeFamilyRow(type, index) {
 
 function saveSetup(complete = true) {
   state.familyProfile = normalizeFamilyProfile(collectFamilyForm());
-  if (complete && !state.familyProfile.selfCall) {
-    alert("あなたの呼び名を入力してください。あとで設定する場合は「あとで設定」を押してください。");
+  if (complete && !state.familyProfile.selfName && !state.familyProfile.selfCall && !state.familyProfile.selfCallExtra) {
+    alert("あなたの名前か呼び名を入力してください。あとで設定する場合は「あとで設定」を押してください。");
     return;
   }
   state.setupComplete = complete;

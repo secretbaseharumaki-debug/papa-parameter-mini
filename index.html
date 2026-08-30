@@ -92,7 +92,11 @@
         <div class="setup-grid">
           <div class="setup-block">
             <h3>自分</h3>
-            <p>普段使っている呼び名を選ぶと、ゲームタイトルがあなた専用になります。</p>
+            <p>名前はゲームタイトルに、呼び名は日々のログ判定に使います。</p>
+            <div class="field-row">
+              <label for="selfNameInput">名前</label>
+              <input id="selfNameInput" type="text" maxlength="10" placeholder="例: はるまき大臣" />
+            </div>
             <div class="field-row">
               <label for="selfCallSelect">呼び名</label>
               <select id="selfCallSelect">
@@ -107,14 +111,14 @@
               </select>
             </div>
             <div class="field-row">
-              <label for="selfCallOther">名前・その他</label>
-              <input id="selfCallOther" type="text" placeholder="例: はるまき大臣" />
+              <label for="selfCallOther">追加の呼び名</label>
+              <input id="selfCallOther" type="text" maxlength="10" placeholder="例: ぱぱん" />
             </div>
           </div>
 
           <div class="setup-block">
             <h3>妻・夫</h3>
-            <p>日々のログで出てくる呼び方を入れておくと、夫婦系の判定が拾いやすくなります。</p>
+            <p>ママ・パパなどの基本呼び名と、夫婦間の呼び名を併用できます。</p>
             <div class="field-row">
               <label for="partnerCallSelect">呼び名</label>
               <select id="partnerCallSelect">
@@ -123,12 +127,15 @@
                 <option>母ちゃん</option>
                 <option>かか</option>
                 <option>妻</option>
+                <option>パパ</option>
+                <option>お父さん</option>
+                <option>夫</option>
                 <option>その他</option>
               </select>
             </div>
             <div class="field-row">
-              <label for="partnerCallOther">その他</label>
-              <input id="partnerCallOther" type="text" placeholder="例: かあちゃん" />
+              <label for="partnerCallOther">追加の呼び名</label>
+              <input id="partnerCallOther" type="text" maxlength="10" placeholder="例: かあちゃん" />
             </div>
           </div>
         </div>
@@ -308,6 +315,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=176"></script>
+    <script src="./app.js?v=177"></script>
   </body>
 </html>
