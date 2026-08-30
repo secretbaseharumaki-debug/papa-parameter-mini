@@ -5939,6 +5939,7 @@ function analyzeText(rawText, mode = "daily") {
       state.mp = state.maxMp;
       addTitle("しっかり回復できた親", logId);
     }
+    applyOvercapSpecials(text, logId);
     applyParentBondSpecial(parentBondResults, logId);
   }
 
@@ -6058,6 +6059,51 @@ function shouldFullRecover(text) {
     "しっかり休めた",
     "ゆっくり休めた",
   ]);
+}
+
+function applyOvercapSpecials(text, logId) {
+  const hpOverWords = [
+    "HP上限突破",
+    "HP限界突破",
+    "体力上限突破",
+    "体力限界突破",
+    "体力めっちゃ回復",
+    "体力がみなぎ",
+    "体が軽い",
+    "元気が有り余",
+    "めっちゃ元気",
+    "温泉で回復",
+    "爆食いして回復",
+    "肉食べて回復",
+    "ご飯食べて回復",
+  ];
+  const mpOverWords = [
+    "MP上限突破",
+    "MP限界突破",
+    "精神力上限突破",
+    "精神力限界突破",
+    "精神力めっちゃ回復",
+    "心が回復",
+    "心が満たされ",
+    "癒された",
+    "めっちゃ癒",
+    "リフレッシュできた",
+    "息抜き最高",
+    "最高に楽しかった",
+    "めっちゃ楽しかった",
+    "頭が冴え",
+  ];
+
+  const hpOver = includesAny(text, hpOverWords);
+  const mpOver = includesAny(text, mpOverWords);
+  if (hpOver) {
+    state.hp = Math.max(state.hp, Math.ceil(state.maxHp * 1.2));
+    addTitle("体力が限界突破した親", logId);
+  }
+  if (mpOver) {
+    state.mp = Math.max(state.mp, Math.ceil(state.maxMp * 1.2));
+    addTitle("精神力が限界突破した親", logId);
+  }
 }
 
 function discoverUniqueSkills(text, logId, isPastLeveling) {
