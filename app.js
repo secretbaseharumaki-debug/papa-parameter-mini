@@ -6044,14 +6044,10 @@ function capacityGrowthFromPatterns(activePatterns, hpDelta, mpDelta, isPastLeve
 
 function shouldFullRecover(text) {
   return includesAny(text, [
-    "爆睡",
-    "熟睡",
     "ぐっすり",
     "よく寝た",
     "朝まで寝",
     "朝まで眠",
-    "昼寝できた",
-    "昼寝した",
     "仮眠できた",
     "夫婦でデート",
     "夫婦デート",
@@ -6067,11 +6063,21 @@ function applyOvercapSpecials(text, logId) {
     "HP限界突破",
     "体力上限突破",
     "体力限界突破",
+    "爆睡",
+    "熟睡",
+    "爆睡できた",
+    "ぐっすり寝た",
+    "朝まで寝た",
+    "朝まで眠れた",
+    "ゆっくり昼寝",
+    "昼寝できた",
+    "昼寝した",
+    "仮眠できた",
+    "しっかり寝れた",
+    "しっかり眠れた",
+    "たっぷり寝た",
+    "寝だめ",
     "体力めっちゃ回復",
-    "体力がみなぎ",
-    "体が軽い",
-    "元気が有り余",
-    "めっちゃ元気",
     "温泉で回復",
     "爆食いして回復",
     "肉食べて回復",
@@ -6083,26 +6089,70 @@ function applyOvercapSpecials(text, logId) {
     "精神力上限突破",
     "精神力限界突破",
     "精神力めっちゃ回復",
-    "心が回復",
-    "心が満たされ",
-    "癒された",
-    "めっちゃ癒",
+    "頭が冴え",
+    "1人の時間ができた",
+    "１人の時間ができた",
+    "一人の時間ができた",
+    "ひとりの時間ができた",
+    "1人の時間が確保",
+    "１人の時間が確保",
+    "一人の時間が確保",
+    "ひとりの時間が確保",
+    "ひとり時間が確保",
+    "一人時間が確保",
+    "自分の時間ができた",
+    "自分の時間が確保",
+  ];
+
+  const soloTimeWords = [
+    "1人の時間",
+    "１人の時間",
+    "一人の時間",
+    "ひとりの時間",
+    "ひとり時間",
+    "一人時間",
+    "自分の時間",
+    "自由時間",
+    "自分だけの時間",
+  ];
+  const hobbyRecoveryWords = [
+    "好きなテレビ",
+    "テレビを思う存分",
+    "YouTubeを思う存分",
+    "youtubeを思う存分",
+    "動画を思う存分",
+    "ゲームを思う存分",
+    "好きなゲーム",
+    "ゆっくりゲーム",
+    "ゆっくりお風呂",
+    "1人でお風呂",
+    "１人でお風呂",
+    "一人でお風呂",
+    "ひとりでお風呂",
+    "ゆっくりお風呂に入れた",
+    "ゆっくりお風呂に浸かれた",
+    "ゆっくりお風呂に疲れた",
+    "ゆっくり風呂",
+    "1人で風呂",
+    "１人で風呂",
+    "一人で風呂",
+    "ひとりで風呂",
     "リフレッシュできた",
     "息抜き最高",
-    "最高に楽しかった",
-    "めっちゃ楽しかった",
-    "頭が冴え",
+    "心が回復",
+    "心が満たされ",
+    "めっちゃ癒",
   ];
 
   const hpOver = includesAny(text, hpOverWords);
-  const mpOver = includesAny(text, mpOverWords);
+  const mpOver = includesAny(text, mpOverWords) || (includesAny(text, soloTimeWords) && includesAny(text, hobbyRecoveryWords));
   if (hpOver) {
     state.hp = Math.max(state.hp, Math.ceil(state.maxHp * 1.2));
-    addTitle("体力が限界突破した親", logId);
+    addTitle("体力を限界突破まで回復した親", logId);
   }
   if (mpOver) {
     state.mp = Math.max(state.mp, Math.ceil(state.maxMp * 1.2));
-    addTitle("精神力が限界突破した親", logId);
+    addTitle("ひとり時間で精神力を取り戻した親", logId);
   }
 }
 
