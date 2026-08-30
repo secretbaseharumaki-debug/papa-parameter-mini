@@ -251,7 +251,7 @@ const NAME_COLLECTIONS = [
       nameEntry("カピバラ"),
       nameEntry("アルパカ"),
       nameEntry("ラクダ"),
-      nameEntry("シカ", ["鹿"]),
+      nameEntry("鹿"),
       nameEntry("クマ"),
       nameEntry("ホッキョクグマ", ["白くま", "シロクマ"]),
       nameEntry("ペンギン"),
@@ -321,7 +321,7 @@ const NAME_COLLECTIONS = [
       nameEntry("アブ"),
       nameEntry("ブヨ"),
       nameEntry("ユスリカ"),
-      nameEntry("蚊", ["カ"]),
+      nameEntry("蚊"),
       nameEntry("ハエ"),
       nameEntry("ゴキブリ"),
       nameEntry("シロアリ"),
@@ -2766,7 +2766,7 @@ const patterns = [
   },
   {
     id: "zoo-outing",
-    words: ["動物園", "キリン", "ゾウ", "ぞう", "象", "たぬき", "タヌキ", "狸", "ワシ", "鷲", "シカ", "鹿", "トラ", "虎", "動物を見", "動物みた"],
+    words: ["動物園", "キリン", "ゾウ", "ぞう", "象", "たぬき", "タヌキ", "狸", "ワシ", "鷲", "鹿", "トラ", "虎", "動物を見", "動物みた"],
     hp: -4,
     mp: 8,
     maxHp: 1,
@@ -5601,6 +5601,7 @@ const NAME_READING_HINTS = {
   豚: "ぶた",
   羊: "ひつ",
   象: "ぞう",
+  鹿: "しか",
   靴下: "くつ",
   長靴: "なが",
   帽子: "ぼう",
@@ -8607,7 +8608,6 @@ $("pastButton").addEventListener("click", () => {
 });
 
 $("sleepButton").addEventListener("click", sleepNow);
-$("fusionButton").addEventListener("click", synthesizeSkill);
 $("organizeButton").addEventListener("click", organizeSkills);
 $("addChildButton").addEventListener("click", () => addFamilyRow("children"));
 $("addRelativeButton").addEventListener("click", () => addFamilyRow("relatives"));
