@@ -3284,6 +3284,42 @@ const patterns = [
     title: "ふたり旅を楽しんだ親",
   },
   {
+    id: "couple-hot-spring",
+    words: ["温泉", "大浴場", "露天風呂", "貸切風呂"],
+    hp: 18,
+    mp: 16,
+    maxHp: 1,
+    maxMp: 2,
+    stats: { 素直さ: 2, 察知力: 2, 実行力: 2, 知力: 1 },
+    skills: [
+      { name: "夫婦デート確保", exp: 12, tags: ["夫婦", "温泉", "回復"] },
+      { name: "ひとり時間の確保", exp: 8, tags: ["夫婦", "休息", "回復"] },
+    ],
+    title: "ふたりで湯にほどけた親",
+  },
+  {
+    id: "child-hot-spring",
+    words: ["温泉", "大浴場", "露天風呂", "貸切風呂"],
+    hp: 22,
+    mp: 7,
+    maxHp: 1,
+    maxMp: 1,
+    stats: { 実行力: 2, 察知力: 2, 忍耐力: 1 },
+    skills: [{ name: "親子お出かけ", exp: 8, tags: ["親子", "温泉", "回復"] }],
+    title: "子連れ温泉を乗り切った親",
+  },
+  {
+    id: "hot-spring-rest",
+    words: ["温泉", "大浴場", "露天風呂", "貸切風呂"],
+    hp: 7,
+    mp: 7,
+    maxHp: 1,
+    maxMp: 1,
+    stats: { 素直さ: 1, 察知力: 1 },
+    skills: [{ name: "ひとり時間の確保", exp: 7, tags: ["休息", "温泉", "回復"] }],
+    title: "湯で回復した親",
+  },
+  {
     id: "couple-childcare-date",
     words: ["子供を預けてデート", "子どもを預けてデート", "子供を預けて夫婦", "子どもを預けて夫婦", "預けてデート", "預けデート"],
     hp: 6,
@@ -5576,6 +5612,9 @@ function patternStrength(text, pattern) {
   if (pattern.id === "shopping-reminder-miss" && !isShoppingReminderMissText(text)) return 0;
   if (pattern.id === "shopping-learning-bridge" && !isShoppingLearningText(text)) return 0;
   if (pattern.id === "school-prep-miss" && !isSchoolPrepMissText(text)) return 0;
+  if (pattern.id === "couple-hot-spring" && !isCoupleHotSpringText(text)) return 0;
+  if (pattern.id === "child-hot-spring" && !isChildHotSpringText(text)) return 0;
+  if (pattern.id === "hot-spring-rest" && !isPlainHotSpringText(text)) return 0;
   if ((pattern.id === "birthday" || pattern.id === "child-age") && !isBirthdayText(text)) return 0;
   const hits = pattern.words.reduce((total, word) => {
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -5662,6 +5701,30 @@ function isSchoolPrepMissText(text) {
 
 function isBirthdayText(text) {
   return includesAny(text, ["誕生日", "バースデー", "birthday", "Birthday"]);
+}
+
+function isHotSpringText(text) {
+  return includesAny(text, ["温泉", "大浴場", "露天風呂", "貸切風呂"]);
+}
+
+function isChildContextText(text) {
+  return includesAny(text, ["子ども", "子供", "こども", "娘", "息子", "あたちゃん", "にゃーちゃん", "家族", "子連れ"]);
+}
+
+function isCoupleContextText(text) {
+  return includesAny(text, ["夫婦", "妻", "嫁", "奥さん", "夫", "旦那", "パートナー", "2人", "二人", "ふたり"]);
+}
+
+function isCoupleHotSpringText(text) {
+  return isHotSpringText(text) && isCoupleContextText(text) && !isChildContextText(text);
+}
+
+function isChildHotSpringText(text) {
+  return isHotSpringText(text) && isChildContextText(text);
+}
+
+function isPlainHotSpringText(text) {
+  return isHotSpringText(text) && !isCoupleHotSpringText(text) && !isChildHotSpringText(text);
 }
 
 function isPartnerCharmText(text) {
@@ -6078,10 +6141,6 @@ function applyOvercapSpecials(text, logId) {
     "たっぷり寝た",
     "寝だめ",
     "体力めっちゃ回復",
-    "温泉で回復",
-    "爆食いして回復",
-    "肉食べて回復",
-    "ご飯食べて回復",
   ];
   const mpOverWords = [
     "MP上限突破",
