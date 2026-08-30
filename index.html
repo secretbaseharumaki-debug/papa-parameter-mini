@@ -226,7 +226,14 @@
             <h2>称号図鑑</h2>
             <span class="count-pill" id="titleCount">0</span>
           </div>
-          <input class="title-search" id="titleSearch" type="search" placeholder="称号を検索" />
+          <div class="equipped-title-panel">
+            <div class="subhead-row">
+              <h3>セット中の称号</h3>
+              <span id="equippedTitleCount">0/3</span>
+            </div>
+            <div class="title-group-list" id="equippedTitleList"></div>
+          </div>
+          <input class="title-search" id="titleSearch" type="search" placeholder="称号・分類・ログで検索" />
           <div class="title-list" id="titleList"></div>
         </article>
       </section>
@@ -315,6 +322,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=177"></script>
+    <script src="./app.js?v=178"></script>
   </body>
 </html>

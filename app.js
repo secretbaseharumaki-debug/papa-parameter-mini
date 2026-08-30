@@ -7231,6 +7231,12 @@ function render() {
   $("activeTitle").innerHTML = equippedTitles.length
     ? equippedTitles.map((title, index) => `<span class="${index === 0 ? "main-title-chip" : "sub-title-chip"}">${escapeHtml(title)}</span>`).join("")
     : "称号未設定";
+  if ($("equippedTitleCount")) $("equippedTitleCount").textContent = `${equippedTitles.length}/${TITLE_EQUIP_LIMIT}`;
+  if ($("equippedTitleList")) {
+    $("equippedTitleList").innerHTML = equippedTitles.length
+      ? equippedTitles.map((title) => renderTitleCard(title, state.titles.indexOf(title), { equippedPanel: true })).join("")
+      : `<p class="small-empty">称号はまだセットされていません。</p>`;
+  }
   $("topHpText").textContent = `${state.hp} / ${state.maxHp}`;
   $("topMpText").textContent = `${state.mp} / ${state.maxMp}`;
   $("topHpBar").style.width = `${clamp((state.hp / state.maxHp) * 100, 0, 120)}%`;
@@ -7954,8 +7960,9 @@ function renderTitleGroups(titles) {
   const visibleTitles = normalizeTitles(titles);
   const filteredTitles = query
     ? visibleTitles.filter((title) => {
+        const categoryName = titleCategoryName(title);
         const logs = titleSourceLogs(title).map((log) => `${log.title || ""} ${log.text || ""}`).join(" ");
-        return `${title} ${logs}`.includes(query);
+        return `${title} ${categoryName} ${titleSearchHint(title)} ${logs}`.includes(query);
       })
     : visibleTitles;
   if (!filteredTitles.length) return `<p class="small-empty">見つかりませんでした。</p>`;
@@ -7984,20 +7991,32 @@ function renderTitleGroups(titles) {
     .join("");
 }
 
-function renderTitleCard(title, index) {
+function renderTitleCard(title, index, options = {}) {
   const isActive = currentSelectedTitles().includes(title);
   const sourceCount = titleSourceLogs(title).length;
+  const categoryName = titleCategoryName(title);
   return `
     <article class="title-card ${isActive ? "active" : ""}">
       <button class="title-card-main" type="button" data-title-log-index="${index}">
         <span>${escapeHtml(title)}</span>
-        <small>${sourceCount ? `${sourceCount}ログ` : "0ログ"}${isActive ? " / 装備中" : ""}</small>
+        <small>${escapeHtml(categoryName)} / ${sourceCount ? `${sourceCount}ログ` : "0ログ"}${isActive ? " / 装備中" : ""}</small>
       </button>
       <div class="title-card-actions">
-        <button class="title-equip-button" type="button" data-title-index="${index}">${isActive ? "外す" : "つける"}</button>
+        <button class="title-equip-button" type="button" data-title-index="${index}">${options.equippedPanel ? "外す" : isActive ? "外す" : "つける"}</button>
       </div>
     </article>
   `;
+}
+
+function titleSearchHint(title) {
+  const normalized = title
+    .replace(/親$/, "")
+    .replace(/人$/, "")
+    .replace(/係$/, "")
+    .replace(/した$/, "")
+    .replace(/[「」]/g, " ");
+  const tokens = normalized.match(/[ぁ-んァ-ン一-龥A-Za-z0-9]+/g) || [];
+  return tokens.join(" ");
 }
 
 function selectTitle(index) {
