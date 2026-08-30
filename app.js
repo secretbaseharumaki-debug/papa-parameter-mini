@@ -665,6 +665,8 @@ const initialState = {
   titles: [],
   selectedTitle: "",
   selectedTitles: [],
+  titleFavorites: {},
+  expandedTitleCategories: [],
   titleSources: {},
   roles: { leader: 0, supporter: 0 },
   specialRoll: null,
@@ -5109,6 +5111,16 @@ function normalizeTitles(titles = []) {
   return Array.from(new Set(titles)).filter((title) => title && !isDisposableCollectionTitle(title));
 }
 
+function normalizeTitleFavorites(favorites = {}, titles = []) {
+  const titleSet = new Set(titles);
+  return Object.fromEntries(
+    Object.entries(favorites).map(([categoryName, items]) => [
+      categoryName,
+      normalizeTitles(items || []).filter((title) => titleSet.has(title)).slice(0, TITLE_EQUIP_LIMIT),
+    ])
+  );
+}
+
 function isDisposableCollectionTitle(title) {
   if (!title) return false;
   if (title.endsWith("図鑑の入口に立った親")) return true;
@@ -5141,6 +5153,8 @@ function loadState() {
       titles: cleanTitles,
       selectedTitle: migratedSelectedTitles[0] || cleanTitles[0] || "",
       selectedTitles: migratedSelectedTitles.slice(0, TITLE_EQUIP_LIMIT),
+      titleFavorites: normalizeTitleFavorites(saved.titleFavorites || {}, cleanTitles),
+      expandedTitleCategories: saved.expandedTitleCategories || [],
       titleSources: Object.fromEntries(titleSourceEntries),
       roles: { ...initialState.roles, ...(saved.roles || {}) },
       specialRoll: saved.specialRoll || null,
@@ -5185,6 +5199,8 @@ function saveState() {
   state.titles = normalizeTitles(state.titles || []);
   state.selectedTitles = normalizeTitles(state.selectedTitles || []).slice(0, TITLE_EQUIP_LIMIT);
   state.selectedTitle = state.selectedTitles[0] || "";
+  state.titleFavorites = normalizeTitleFavorites(state.titleFavorites || {}, state.titles);
+  state.expandedTitleCategories = state.expandedTitleCategories || [];
   state.titleSources = Object.fromEntries(Object.entries(state.titleSources || {}).filter(([title]) => state.titles.includes(title)));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -7298,6 +7314,12 @@ function render() {
   document.querySelectorAll("[data-title-index]").forEach((button) => {
     button.addEventListener("click", () => selectTitle(Number(button.dataset.titleIndex)));
   });
+  document.querySelectorAll("[data-title-favorite-index]").forEach((button) => {
+    button.addEventListener("click", () => toggleTitleFavorite(Number(button.dataset.titleFavoriteIndex)));
+  });
+  document.querySelectorAll("[data-toggle-title-category]").forEach((button) => {
+    button.addEventListener("click", () => toggleTitleCategory(decodeURIComponent(button.dataset.toggleTitleCategory)));
+  });
   document.querySelectorAll("[data-title-log-index]").forEach((button) => {
     button.addEventListener("click", () => showTitleLogs(Number(button.dataset.titleLogIndex)));
   });
@@ -7977,31 +7999,50 @@ function renderTitleGroups(titles) {
 
   return Array.from(grouped.entries())
     .filter(([, items]) => items.length)
-    .map(([categoryName, items]) => `
-      <section class="title-group ${categoryName === "図鑑" ? "collection-title-group" : ""}">
-        <div class="title-group-head">
-          <h3>${escapeHtml(categoryName)}</h3>
-          <span>${items.length}</span>
-        </div>
-        <div class="title-group-list">
-          ${items.map((title) => renderTitleCard(title, state.titles.indexOf(title))).join("")}
-        </div>
-      </section>
-    `)
+    .map(([categoryName, items]) => renderTitleGroup(categoryName, items, Boolean(query)))
     .join("");
+}
+
+function renderTitleGroup(categoryName, items, isSearching = false) {
+  const favorites = currentFavoriteTitles(categoryName).filter((title) => items.includes(title));
+  const isExpanded = (state.expandedTitleCategories || []).includes(categoryName);
+  const hiddenItems = items.filter((title) => !favorites.includes(title));
+  const visibleItems = isSearching || isExpanded ? [...favorites, ...hiddenItems] : favorites;
+  return `
+    <section class="title-group ${categoryName === "図鑑" ? "collection-title-group" : ""}">
+      <div class="title-group-head">
+        <h3>${escapeHtml(categoryName)}</h3>
+        <span>${items.length}</span>
+      </div>
+      <div class="title-group-list">
+        ${
+          visibleItems.length
+            ? visibleItems.map((title) => renderTitleCard(title, state.titles.indexOf(title))).join("")
+            : `<p class="small-empty">お気に入り未設定</p>`
+        }
+      </div>
+      ${
+        !isSearching && hiddenItems.length
+          ? `<button class="skill-book-toggle" type="button" data-toggle-title-category="${encodeURIComponent(categoryName)}">${isExpanded ? "閉じる" : `全部見る（${hiddenItems.length}）`}</button>`
+          : ""
+      }
+    </section>
+  `;
 }
 
 function renderTitleCard(title, index, options = {}) {
   const isActive = currentSelectedTitles().includes(title);
-  const sourceCount = titleSourceLogs(title).length;
   const categoryName = titleCategoryName(title);
+  const isFavorite = currentFavoriteTitles(categoryName).includes(title);
+  const meta = [isFavorite ? "お気に入り" : "", isActive ? "セット中" : ""].filter(Boolean).join(" / ");
   return `
     <article class="title-card ${isActive ? "active" : ""}">
       <button class="title-card-main" type="button" data-title-log-index="${index}">
         <span>${escapeHtml(title)}</span>
-        <small>${escapeHtml(categoryName)} / ${sourceCount ? `${sourceCount}ログ` : "0ログ"}${isActive ? " / 装備中" : ""}</small>
+        ${meta ? `<small>${escapeHtml(meta)}</small>` : ""}
       </button>
       <div class="title-card-actions">
+        <button class="title-favorite-button" type="button" data-title-favorite-index="${index}">${isFavorite ? "★" : "☆"}</button>
         <button class="title-equip-button" type="button" data-title-index="${index}">${options.equippedPanel ? "外す" : isActive ? "外す" : "つける"}</button>
       </div>
     </article>
@@ -8032,6 +8073,44 @@ function selectTitle(index) {
     return;
   }
   state.selectedTitle = state.selectedTitles[0] || "";
+  saveState();
+  render();
+}
+
+function currentFavoriteTitles(categoryName) {
+  return normalizeTitles(state.titleFavorites?.[categoryName] || [])
+    .filter((title) => state.titles.includes(title) && titleCategoryName(title) === categoryName)
+    .slice(0, TITLE_EQUIP_LIMIT);
+}
+
+function toggleTitleFavorite(index) {
+  const title = state.titles[index];
+  if (!title) return;
+  const categoryName = titleCategoryName(title);
+  const favorites = currentFavoriteTitles(categoryName);
+  if (favorites.includes(title)) {
+    state.titleFavorites = {
+      ...(state.titleFavorites || {}),
+      [categoryName]: favorites.filter((item) => item !== title),
+    };
+  } else if (favorites.length < TITLE_EQUIP_LIMIT) {
+    state.titleFavorites = {
+      ...(state.titleFavorites || {}),
+      [categoryName]: [...favorites, title],
+    };
+  } else {
+    alert(`${categoryName}のお気に入り称号は${TITLE_EQUIP_LIMIT}個までです。★を外してから入れ替えてください。`);
+    return;
+  }
+  saveState();
+  render();
+}
+
+function toggleTitleCategory(categoryName) {
+  const expanded = new Set(state.expandedTitleCategories || []);
+  if (expanded.has(categoryName)) expanded.delete(categoryName);
+  else expanded.add(categoryName);
+  state.expandedTitleCategories = [...expanded];
   saveState();
   render();
 }

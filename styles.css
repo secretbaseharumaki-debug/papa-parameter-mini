@@ -1599,9 +1599,11 @@ textarea:focus {
 .title-card-actions {
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   flex-shrink: 0;
 }
 
+.title-favorite-button,
 .title-equip-button {
   min-height: 28px;
   padding: 0 8px;
@@ -1611,6 +1613,14 @@ textarea:focus {
   color: #fff4cf;
   font-size: 0.76rem;
   font-weight: 900;
+}
+
+.title-favorite-button {
+  min-width: 30px;
+  padding: 0 6px;
+  border-color: #d6a83b;
+  background: #fff8df;
+  color: #9a6b00;
 }
 
 .log-panel {
