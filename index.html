@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png?v=167" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png?v=167" />
     <link rel="manifest" href="./manifest.webmanifest?v=167" />
-    <link rel="stylesheet" href="./styles.css?v=172" />
+    <link rel="stylesheet" href="./styles.css?v=173" />
   </head>
   <body>
     <main class="app-shell">
@@ -269,6 +269,11 @@
           <span class="count-pill" id="reportStatus">セーブ用</span>
         </div>
         <p>今の育成データをファイルに残せます。データが消えた時は、保存したセーブデータから再開できます。</p>
+        <div class="safety-note">
+          <strong>セーブデータについて</strong>
+          <p>このアプリは入力したログを外部へ送信しません。データはこのブラウザ内に保存されます。</p>
+          <p>書き出したセーブデータには、呼び名・日々のログ・スキル・称号・図鑑の進み具合が入ります。自分用のバックアップとして保管し、人に渡す時は中身を見られても大丈夫なデータか確認してください。</p>
+        </div>
         <div class="action-row">
           <button class="primary-button" id="exportReportButton" type="button">レポート作成</button>
           <button class="secondary-button" id="loadReportFileButton" type="button">セーブデータから再開</button>

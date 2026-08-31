@@ -393,6 +393,28 @@ h2 {
   line-height: 1.55;
 }
 
+.safety-note {
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px solid rgba(70, 124, 199, 0.3);
+  border-radius: 8px;
+  background: #f2f8ff;
+  color: #243b58;
+}
+
+.safety-note strong {
+  display: block;
+  color: #1f4f8f;
+  font-size: 0.94rem;
+}
+
+.safety-note p {
+  margin-top: 6px;
+  color: #344b67;
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
 .report-file-picker {
   display: grid;
   gap: 8px;
