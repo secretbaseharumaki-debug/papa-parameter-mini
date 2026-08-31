@@ -1,7 +1,7 @@
 const STORAGE_KEY = "papa-parameter-mini-state-v1";
 
 const BASE_STATS = ["筋力", "知力", "実行力", "素直さ", "察知力", "忍耐力"];
-const NORMAL_SKILL_LIMIT = 4;
+const NORMAL_SKILL_LIMIT = 3;
 const TITLE_EQUIP_LIMIT = 3;
 const SELF_CALL_OPTIONS = ["", "パパ", "お父さん", "父ちゃん", "とと", "ママ", "お母さん", "その他"];
 const PARTNER_CALL_OPTIONS = ["ママ", "お母さん", "母ちゃん", "かか", "妻", "パパ", "お父さん", "夫", "その他"];
