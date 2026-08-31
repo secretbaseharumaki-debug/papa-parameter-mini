@@ -7697,7 +7697,7 @@ function renderSkillGroups(skills) {
 function renderUniqueSkillNote() {
   return `
     <p class="unique-skill-note">
-      ユニークスキルは、習い事名や教材名を具体的に書くと発動します。例：空手の稽古を見た / DWEを一緒に聞いた / クモンの宿題を見た
+      ユニークスキルは、これから子供の深淵の扉を開いた時にレベルが上がります。具体的に書くと発動しやすいです。
     </p>
   `;
 }
@@ -8508,7 +8508,7 @@ function renderPopupSkill(skill) {
           <strong><span class="unique-badge">UNIQUE</span>${escapeHtml(displayName)}</strong>
           <small>Lv.${skill.level} / EXP +${escapeHtml(String(skill.exp))}</small>
         </div>
-        <p>習い事・教材の本格ルートを発見しました。次からも「空手の練習」「DWEを聞いた」みたいに具体名を書くと育ちます。</p>
+        <p>子供の深淵の扉に触れました。次からも、その出来事を具体的に書くと育ちやすくなります。</p>
       </div>
     `;
   }
@@ -8558,7 +8558,7 @@ function showSkillDetail(skillId) {
   $("dialogBody").innerHTML = `
     <h3>${escapeHtml(displayName)} Lv.${skill.level}</h3>
     <p class="skill-meta">${typeLabel} / 獲得日 ${formatDate(skill.createdAt)}</p>
-    ${skill.type === "unique" ? `<p class="unique-skill-note detail">習い事名や教材名を具体的に書くと伸びる、家庭ごとの裏ルートです。</p>` : ""}
+    ${skill.type === "unique" ? `<p class="unique-skill-note detail">子供の深淵の扉を開いた時に伸びる、家庭ごとの裏ルートです。具体的に書くと発動しやすいです。</p>` : ""}
     <div class="skill-detail-meter">
       <div class="mini-track"><div class="mini-fill" style="width:${levelInfo.progress}%"></div></div>
       <p class="skill-meta">EXP ${levelInfo.currentExp} / ${levelInfo.neededExp}</p>
