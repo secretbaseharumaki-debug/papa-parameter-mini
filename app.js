@@ -127,6 +127,68 @@ const DINOSAUR_COLLECTION = [
 ];
 const NAME_COLLECTIONS = [
   {
+    id: "kidzania-koshien",
+    label: "キッザニア甲子園図鑑",
+    shortLabel: "キッザニア",
+    themeWords: ["キッザニア", "KidZania", "職業体験", "お仕事体験", "仕事体験", "キッゾ"],
+    requireThemeForItems: true,
+    skillName: "キッザニア図鑑調査",
+    skillTags: ["勉強", "キッザニア", "図鑑"],
+    category: "勉強",
+    items: [
+      nameEntry("カーライフサポートセンター"),
+      nameEntry("ガソリンスタンド"),
+      nameEntry("レンタカー"),
+      nameEntry("運転免許試験場", ["免許試験場"]),
+      nameEntry("カーデザインスタジオ"),
+      nameEntry("ポストレコーディングスタジオ", ["ポスレコ"]),
+      nameEntry("通信会社"),
+      nameEntry("楽屋", ["ステージ"]),
+      nameEntry("劇場"),
+      nameEntry("サラダショップ"),
+      nameEntry("ソフトクリームショップ"),
+      nameEntry("パスタスタンド"),
+      nameEntry("すし屋", ["寿司屋"]),
+      nameEntry("パッケージング・ラボ", ["パッケージングラボ"]),
+      nameEntry("歯科医院"),
+      nameEntry("ケアサポートセンター"),
+      nameEntry("ペインティングウォール"),
+      nameEntry("イベントスペース1"),
+      nameEntry("動画制作スタジオ"),
+      nameEntry("ベーカリー"),
+      nameEntry("消防署"),
+      nameEntry("病院"),
+      nameEntry("デパート"),
+      nameEntry("おしごと相談センター"),
+      nameEntry("ゲーム会社"),
+      nameEntry("花屋"),
+      nameEntry("はんこ屋"),
+      nameEntry("筆記具屋"),
+      nameEntry("メガネショップ"),
+      nameEntry("リユースショップ"),
+      nameEntry("警備センター"),
+      nameEntry("銀行"),
+      nameEntry("キッチンリフォームセンター"),
+      nameEntry("医薬研究所"),
+      nameEntry("イベントスペース2"),
+      nameEntry("警察署"),
+      nameEntry("送配電会社"),
+      nameEntry("宅配会社"),
+      nameEntry("ソーセージ工房"),
+      nameEntry("冷蔵サポートセンター"),
+      nameEntry("水道施設"),
+      nameEntry("ホースパーク"),
+    ],
+    titleThresholds: [
+      { count: 1, title: "キッザニア見習い" },
+      { count: 3, title: "はじめての職業体験を見守る親" },
+      { count: 10, title: "キッザニア職業案内人" },
+      { count: 25, title: "キッザニア甲子園中級者" },
+      { count: 40, title: "キッザニア甲子園マスター" },
+      { count: 42, title: "キッザニア甲子園コンプリート" },
+    ],
+  },
+  {
     id: "dinosaurs",
     label: "恐竜図鑑",
     shortLabel: "恐竜",
@@ -6390,8 +6452,10 @@ function discoverNameCollections(text, logId, isPastLeveling) {
   const foundGroups = [];
 
   NAME_COLLECTIONS.forEach((collection) => {
-    const foundItems = collection.items.filter((item) => includesAny(text, item.words));
     const hasTheme = includesAny(text, collection.themeWords || []);
+    const foundItems = collection.requireThemeForItems && !hasTheme
+      ? []
+      : collection.items.filter((item) => includesAny(text, item.words));
     if (!foundItems.length && !hasTheme) return;
 
     const store = collectionState(collection.id);
