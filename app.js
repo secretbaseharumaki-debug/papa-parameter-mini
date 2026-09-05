@@ -913,6 +913,9 @@ const SKILL_CATEGORIES = [
       "アンパンマンミュージアム",
       "遊園地",
       "キッザニア",
+      "カンドゥー",
+      "カンドゥ",
+      "Kandu",
       "職業体験",
       "創作あそび",
       "粘土",
@@ -1176,7 +1179,11 @@ const SKILL_CATEGORIES = [
       "映画館",
       "ショー",
       "キッザニア",
+      "カンドゥー",
+      "カンドゥ",
+      "Kandu",
       "職業体験",
+      "カッチン",
       "キャラクターショー",
       "ヒーローショー",
       "舞台",
@@ -3031,7 +3038,7 @@ const patterns = [
   },
   {
     id: "kidzania-outing",
-    words: ["キッザニア", "KidZania", "職業体験", "お仕事体験", "仕事体験", "キッゾ", "銀行体験", "お店体験"],
+    words: ["キッザニア", "KidZania", "キッゾ"],
     hp: -30,
     mp: -28,
     maxHp: 4,
@@ -3043,6 +3050,21 @@ const patterns = [
       { name: "子連れ移動対応", exp: 10, tags: ["イベント", "移動", "高負荷"], category: "イベント" },
     ],
     title: "仕事の世界を初めて一緒に見た親",
+  },
+  {
+    id: "kandu-outing",
+    words: ["カンドゥー", "カンドゥ", "Kandu", "KANDU", "カッチン"],
+    hp: -28,
+    mp: -25,
+    maxHp: 4,
+    maxMp: 3,
+    stats: { 筋力: 4, 知力: 5, 実行力: 4, 察知力: 3, 忍耐力: 4, 素直さ: 2 },
+    skills: [
+      { name: "職業体験ナビ", exp: 22, tags: ["勉強", "職業体験", "社会"], category: "勉強" },
+      { name: "子連れテーマパーク運用", exp: 10, tags: ["遊び", "イベント", "外出"], category: "遊び" },
+      { name: "子連れ移動対応", exp: 10, tags: ["イベント", "移動", "高負荷"], category: "イベント" },
+    ],
+    title: "仕事の世界を遊びながら見届けた親",
   },
   {
     id: "family-movie",
@@ -5150,6 +5172,21 @@ const memorialSeeds = [
     title: "初キッザニアを見届けた親",
   },
   {
+    words: ["初めて", "カンドゥー"],
+    name: "初めてのカンドゥー",
+    title: "初カンドゥーを見届けた親",
+  },
+  {
+    words: ["初めて", "カンドゥ"],
+    name: "初めてのカンドゥー",
+    title: "初カンドゥーを見届けた親",
+  },
+  {
+    words: ["初めて", "Kandu"],
+    name: "初めてのカンドゥー",
+    title: "初カンドゥーを見届けた親",
+  },
+  {
     words: ["初旅行"],
     name: "初めての家族旅行",
     title: "初旅行を刻んだ親",
@@ -6129,7 +6166,7 @@ function analyzeText(rawText, mode = "daily") {
   });
 
   if (!isPastLeveling) {
-    const severeIds = ["solo-care", "sleepcare", "sleepless-night", "travel", "theme-park", "kidzania-outing", "camp-outing", "outing-walk"];
+    const severeIds = ["solo-care", "sleepcare", "sleepless-night", "travel", "theme-park", "kidzania-outing", "kandu-outing", "camp-outing", "outing-walk"];
     const hasSevereEvent = activePatterns.some((pattern) => severeIds.includes(pattern.id));
     const dailyDrainLimit = hasSevereEvent ? 0.85 : 0.35;
     hpDelta = Math.max(hpDelta, -Math.round(state.maxHp * dailyDrainLimit));
