@@ -1,6 +1,7 @@
 const STORAGE_KEY = "papa-parameter-mini-state-v1";
 
 const BASE_STATS = ["筋力", "知力", "実行力", "素直さ", "察知力", "忍耐力"];
+const STAT_VALUE_CAP = 999;
 const NORMAL_SKILL_LIMIT = 3;
 const TITLE_EQUIP_LIMIT = 3;
 const SELF_CALL_OPTIONS = ["", "パパ", "お父さん", "父ちゃん", "とと", "ママ", "お母さん", "その他"];
@@ -822,6 +823,8 @@ const SKILL_CATEGORIES = [
       "ディズニーシー",
       "アンパンマンミュージアム",
       "遊園地",
+      "キッザニア",
+      "職業体験",
       "創作あそび",
       "粘土",
     ],
@@ -1083,6 +1086,8 @@ const SKILL_CATEGORIES = [
       "ショッピングモール",
       "映画館",
       "ショー",
+      "キッザニア",
+      "職業体験",
       "キャラクターショー",
       "ヒーローショー",
       "舞台",
@@ -1322,6 +1327,7 @@ const SKILL_BOOK_CANDIDATES = {
     "自然観察",
     "食材観察学習",
     "買い物社会学習",
+    "職業体験ナビ",
     "おしゃれ観察学習",
     "ごっこ遊び学習",
     "習い事練習伴走",
@@ -1519,6 +1525,11 @@ const SKILL_EVOLUTIONS = {
     { level: 3, name: "買い物社会学習係" },
     { level: 10, name: "商品と値段の案内人" },
     { level: 30, name: "生活を学びに変える親" },
+  ],
+  職業体験ナビ: [
+    { level: 3, name: "職業体験見守り係" },
+    { level: 10, name: "仕事の世界案内人" },
+    { level: 30, name: "未来の仕事ナビゲーター" },
   ],
   食材観察学習: [
     { level: 3, name: "食材観察係" },
@@ -2930,6 +2941,21 @@ const patterns = [
     title: "しんどい一日を楽しい思い出に変えた親",
   },
   {
+    id: "kidzania-outing",
+    words: ["キッザニア", "KidZania", "職業体験", "お仕事体験", "仕事体験", "キッゾ", "銀行体験", "お店体験"],
+    hp: -30,
+    mp: -28,
+    maxHp: 4,
+    maxMp: 3,
+    stats: { 筋力: 4, 知力: 5, 実行力: 4, 察知力: 3, 忍耐力: 4, 素直さ: 2 },
+    skills: [
+      { name: "職業体験ナビ", exp: 22, tags: ["勉強", "職業体験", "社会"], category: "勉強" },
+      { name: "子連れテーマパーク運用", exp: 12, tags: ["遊び", "イベント", "外出"], category: "遊び" },
+      { name: "子連れ移動対応", exp: 10, tags: ["イベント", "移動", "高負荷"], category: "イベント" },
+    ],
+    title: "仕事の世界を初めて一緒に見た親",
+  },
+  {
     id: "family-movie",
     words: ["映画", "映画館", "劇場版", "映画を見", "映画見", "映画に行", "映画行", "シアター"],
     hp: 7,
@@ -3759,7 +3785,7 @@ const patterns = [
   },
   {
     id: "child-growth-emotion",
-    words: ["身体測定", "身長", "体重", "大きくなった", "成長を感じ", "じーん", "ジーン", "服が小さ", "初めてでき"],
+    words: ["身体測定", "身長", "体重", "大きくなった", "成長を感じ", "成長にパパは泣", "成長にママは泣", "成長に泣", "じーん", "ジーン", "服が小さ", "初めてでき"],
     hp: 2,
     mp: 8,
     maxMp: 1,
@@ -4671,9 +4697,23 @@ const patterns = [
     mp: 4,
     maxHp: 2,
     maxMp: 1,
-    stats: { 実行力: 3, 知力: 2, 察知力: 3, パパママ力: 3, 忍耐力: 2 },
+    stats: { 筋力: 3, 実行力: 3, 知力: 2, 察知力: 3, パパママ力: 3, 忍耐力: 2 },
     skills: [],
     title: "家族旅行",
+  },
+  {
+    id: "outing-walk",
+    words: ["歩いた", "歩き回", "歩きまわ", "めっちゃ歩", "かなり歩", "たくさん歩", "いっぱい歩", "長時間歩", "移動時間"],
+    hp: -8,
+    mp: -5,
+    maxHp: 2,
+    maxMp: 1,
+    stats: { 筋力: 4, 忍耐力: 2, 実行力: 1, 察知力: 1 },
+    skills: [
+      { name: "子連れ移動対応", exp: 10, tags: ["イベント", "移動", "筋力"], category: "イベント" },
+      { name: "高負荷おでかけ回復", exp: 8, tags: ["遊び", "外出", "高負荷"], category: "遊び" },
+    ],
+    title: "歩き切って思い出にした親",
   },
   {
     id: "transport-trip",
@@ -5014,6 +5054,11 @@ const memorialSeeds = [
     words: ["初めて", "保育園"],
     name: "初めての保育園",
     title: "初登園を見送った親",
+  },
+  {
+    words: ["初めて", "キッザニア"],
+    name: "初めてのキッザニア",
+    title: "初キッザニアを見届けた親",
   },
   {
     words: ["初旅行"],
@@ -5661,6 +5706,7 @@ function patternStrength(text, pattern) {
   if (pattern.id === "shopping-reminder-miss" && !isShoppingReminderMissText(text)) return 0;
   if (pattern.id === "shopping-learning-bridge" && !isShoppingLearningText(text)) return 0;
   if (pattern.id === "school-prep-miss" && !isSchoolPrepMissText(text)) return 0;
+  if (pattern.id === "patience" && !isChildCryingOrTantrumText(text)) return 0;
   if (pattern.id === "couple-hot-spring" && !isCoupleHotSpringText(text)) return 0;
   if (pattern.id === "child-hot-spring" && !isChildHotSpringText(text)) return 0;
   if (pattern.id === "hot-spring-rest" && !isPlainHotSpringText(text)) return 0;
@@ -5690,6 +5736,15 @@ function isCharacterShowText(text) {
   const showContext = includesAny(text, ["ショー", "舞台", "映画", "劇場版", "握手会", "撮影会"]);
   const watchContext = includesAny(text, ["見た", "観た", "みに行", "見に行", "行った", "会った"]);
   return showContext || (characterContext && watchContext);
+}
+
+function isChildCryingOrTantrumText(text) {
+  if (includesAny(text, ["癇癪", "かんしゃく", "泣き叫", "イヤイヤ", "ぐず", "大泣き", "号泣", "泣き止", "夜泣き"])) return true;
+  const familyNames = (state.familyProfile?.children || []).map((child) => child.nickname).filter(Boolean);
+  const childSubjects = ["子ども", "子供", "こども", "娘", "息子", "赤ちゃん", "我が子", ...familyNames];
+  if (childSubjects.some((name) => includesAny(text, [`${name}が泣`, `${name}は泣`, `${name}泣`]))) return true;
+  if (includesAny(text, ["パパは泣", "ママは泣", "親は泣", "自分が泣", "成長に泣", "泣きました"])) return false;
+  return includesAny(text, ["泣いて", "泣いた", "泣く"]);
 }
 
 function isCakeMakingText(text) {
@@ -5985,7 +6040,7 @@ function analyzeText(rawText, mode = "daily") {
   });
 
   if (!isPastLeveling) {
-    const severeIds = ["solo-care", "sleepcare", "sleepless-night", "travel"];
+    const severeIds = ["solo-care", "sleepcare", "sleepless-night", "travel", "theme-park", "kidzania-outing", "camp-outing", "outing-walk"];
     const hasSevereEvent = activePatterns.some((pattern) => severeIds.includes(pattern.id));
     const dailyDrainLimit = hasSevereEvent ? 0.85 : 0.35;
     hpDelta = Math.max(hpDelta, -Math.round(state.maxHp * dailyDrainLimit));
@@ -6037,7 +6092,7 @@ function analyzeText(rawText, mode = "daily") {
   });
 
   Object.entries(statDelta).forEach(([name, value]) => {
-    state.stats[name] = clamp((state.stats[name] || 1) + value, 0, 99);
+    state.stats[name] = clamp((state.stats[name] || 1) + value, 0, STAT_VALUE_CAP);
   });
 
   const capacityGrowth = capacityGrowthFromPatterns(activePatterns, hpDelta, mpDelta, isPastLeveling);
